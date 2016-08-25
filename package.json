@@ -4,7 +4,7 @@
   "description": "Filter a list of files to only the unique files, based on content",
   "license": "MIT",
   "repository": "natecavanaugh/file-filter",
-  "bin": "cli.js",
+  "bin": "lib/cli.js",
   "author": {
     "name": "Nate Cavanaugh",
     "email": "nate@shift22.com",

@@ -1,5 +1,5 @@
 'use strict';
-var fileFilter = require('../');
+var fileFilter = require('../lib');
 var _ = require('lodash');
 var path = require('path');
 
@@ -21,20 +21,6 @@ var getFiles = function() {
 		}
 	);
 };
-
-// it(
-// 	'should accept input from stdin',
-// 	function(done) {
-// 		assert.strictEqual(fileFilter('belgian'), 'BEST BEER EVAR!');
-// 	}
-// );
-
-// it(
-// 	'should accept arguments from parameters',
-// 	function(done) {
-// 		assert.strictEqual(fileFilter('belgian'), 'BEST BEER EVAR!');
-// 	}
-// );
 
 var files = getFiles(_.times(2, function(n) {
 	n += 1;
@@ -107,6 +93,20 @@ it(
 		);
 	}
 );
+
+// it(
+// 	'should accept input from stdin',
+// 	function(done) {
+// 		assert.strictEqual(fileFilter('belgian'), 'BEST BEER EVAR!');
+// 	}
+// );
+
+// it(
+// 	'should accept arguments from parameters',
+// 	function(done) {
+// 		assert.strictEqual(fileFilter('belgian'), 'BEST BEER EVAR!');
+// 	}
+// );
 
 // it(
 // 	'should show a summary after a file list',
