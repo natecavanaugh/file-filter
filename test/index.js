@@ -27,123 +27,139 @@ var files = getFiles(_.times(2, function(n) {
 	return ['unique_' + n + '.txt', 'dupe_' + n + '.txt'];
 }));
 
-it(
-	'can be instantiated or called directly',
-	function() {
-		var filesArr = getFiles('unique_1.txt', 'dupe_1.txt');
+var path = require('path');
+var fs = require('fs');
+var chai = require('chai');
+var _ = require('lodash');
 
-		var direct = fileFilter([]);
-		var instance = new fileFilter([]);
+chai.use(require('chai-string'));
 
-		assert.isTrue('then' in direct, 'fileFilter() is not a promise/thenable');
-		assert.isTrue('then' in instance, 'new fileFilter() is not a promise/thenable');
-	}
-);
+var assert = chai.assert;
 
-it(
-	'should only accept arrays or newline separated strings',
-	function(done) {
-		var filesArr = getFiles('unique_1.txt', 'dupe_1.txt');
+describe(
+	'fileFilter',
+	function () {
+		'use strict';
 
-		fileFilter().then(
-			function(results) {
+		it(
+			'can be instantiated or called directly',
+			function() {
+				var filesArr = getFiles('unique_1.txt', 'dupe_1.txt');
 
-			}
-		).catch(
-			function(err) {
-				assert.equal(err.message, fileFilter._ERR_INVALID_ARGS);
+				var direct = fileFilter([]);
+				var instance = new fileFilter([]);
 
-				done();
+				assert.isTrue('then' in direct, 'fileFilter() is not a promise/thenable');
+				assert.isTrue('then' in instance, 'new fileFilter() is not a promise/thenable');
 			}
 		);
-	}
-);
 
-it(
-	'should show unique files',
-	function(done) {
-		fileFilter(files.join('\n')).then(
-			function(results) {
-				var uniqueFiles = results[0].uniques;
+		it(
+			'should only accept arrays or newline separated strings',
+			function(done) {
+				var filesArr = getFiles('unique_1.txt', 'dupe_1.txt');
 
-				assert.equal(uniqueFiles.length, 2);
-				assert.isFalse(uniqueFiles.some(function(n) {
-					return path.basename(n).indexOf('dupe_') === 0;
-				}));
+				fileFilter().then(
+					function(results) {
+
+					}
+				).catch(
+					function(err) {
+						assert.equal(err.message, fileFilter._ERR_INVALID_ARGS);
+
+						done();
+					}
+				);
 			}
-		)
-		.done(done, done);
-	}
-);
+		);
 
-it(
-	'should show duplicate files',
-	function(done) {
-		fileFilter(files.join('\n')).then(
-			function(results) {
-				var duplicateFiles = results[0].duplicates;
+		it(
+			'should show unique files',
+			function(done) {
+				fileFilter(files.join('\n')).then(
+					function(results) {
+						var uniqueFiles = results.strict.uniques;
 
-				assert.equal(duplicateFiles.length, 2);
-				assert.isFalse(duplicateFiles.some(function(n) {
-					return path.basename(n).indexOf('unique_') === 0;
-				}));
+						assert.equal(uniqueFiles.length, 2);
+						assert.isFalse(uniqueFiles.some(function(n) {
+							return path.basename(n).indexOf('dupe_') === 0;
+						}));
+					}
+				)
+				.done(done, done);
 			}
-		)
-		.done(done, done);
-	}
-);
+		);
 
-it(
-	'should consider whitespace in comparing files',
-	function(done) {
-		var files = getFiles('unique_3.txt', 'dupe_with_spaces_3.txt');
+		it(
+			'should show duplicate files',
+			function(done) {
+				fileFilter(files.join('\n')).then(
+					function(results) {
+						var duplicateFiles = results.strict.duplicates;
 
-		fileFilter(files.join('\n')).then(
-			function(results) {
-				var strict = results[0];
-
-				var loose = results[1];
-
-				assert.equal(loose.uniques.length, 1);
-				assert.equal(loose.duplicates.length, 1);
-				assert.equal(strict.uniques.length, 2);
-				assert.equal(strict.duplicates.length, 0);
-
-				assert.isFalse(loose.uniques.some(function(n) {
-					return path.basename(n).indexOf('dupe_') === 0;
-				}));
-
-				var REGEX_FILE_CHECK = /^(?:unique|dupe)_/;
-
-				assert.isTrue(strict.uniques.every(function(n) {
-					return REGEX_FILE_CHECK.test(path.basename(n));
-				}));
+						assert.equal(duplicateFiles.length, 2);
+						assert.isFalse(duplicateFiles.some(function(n) {
+							return path.basename(n).indexOf('unique_') === 0;
+						}));
+					}
+				)
+				.done(done, done);
 			}
-		)
-		.done(done, done);
-	}
-);
+		);
 
-it(
-	'should ignore invalid files and directories',
-	function(done) {
-		fileFilter(['invalid_file.js', __dirname]).then(
-			function(results) {
-				assert.equal(results[0].allFiles.length, 0);
-				assert.equal(results[0].uniques.length, 0);
-				assert.equal(results[0].duplicates.length, 0);
+		it(
+			'should consider whitespace in comparing files',
+			function(done) {
+				var files = getFiles('unique_3.txt', 'dupe_with_spaces_3.txt');
 
-				var unprocessed = results[2];
-				var dirKeys = Object.keys(unprocessed.dirs);
-				var miscKeys = Object.keys(unprocessed.misc);
+				fileFilter(files.join('\n')).then(
+					function(results) {
+						var strict = results.strict;
 
-				assert.equal(dirKeys.length, 1);
-				assert.equal(miscKeys.length, 1);
+						var loose = results.loose;
 
-				assert.equal(dirKeys[0], __dirname);
-				assert.equal(miscKeys[0], 'invalid_file.js');
+						assert.equal(loose.uniques.length, 1);
+						assert.equal(loose.duplicates.length, 1);
+						assert.equal(strict.uniques.length, 2);
+						assert.equal(strict.duplicates.length, 0);
+
+						assert.isFalse(loose.uniques.some(function(n) {
+							return path.basename(n).indexOf('dupe_') === 0;
+						}));
+
+						var REGEX_FILE_CHECK = /^(?:unique|dupe)_/;
+
+						assert.isTrue(strict.uniques.every(function(n) {
+							return REGEX_FILE_CHECK.test(path.basename(n));
+						}));
+					}
+				)
+				.done(done, done);
 			}
-		)
-		.done(done, done);
+		);
+
+		it(
+			'should ignore invalid files and directories',
+			function(done) {
+				fileFilter(['invalid_file.js', __dirname]).then(
+					function(results) {
+						assert.equal(results.strict.files.length, 0);
+						assert.equal(results.strict.uniques.length, 0);
+						assert.equal(results.strict.duplicates.length, 0);
+
+						var unprocessed = results.unprocessed;
+						var dirKeys = Object.keys(unprocessed.dirs);
+						var miscKeys = Object.keys(unprocessed.misc);
+
+						assert.equal(dirKeys.length, 1);
+						assert.equal(miscKeys.length, 1);
+
+						assert.equal(dirKeys[0], __dirname);
+						assert.equal(miscKeys[0], 'invalid_file.js');
+					}
+				)
+				.done(done, done);
+			}
+		);
 	}
 );
