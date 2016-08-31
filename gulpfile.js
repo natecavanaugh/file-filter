@@ -17,7 +17,7 @@ gulp.task('test-unit', function() {
 });
 
 gulp.task('test-cover', function() {
-	return gulp.src(['./*.js'])
+	return gulp.src(['lib/**/*.js'])
 		.pipe(plugins.istanbul())
 		.pipe(plugins.istanbul.hookRequire());
 });

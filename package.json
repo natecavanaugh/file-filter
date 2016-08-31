@@ -4,7 +4,7 @@
   "description": "Filter a list of files to only the unique files, based on content",
   "license": "MIT",
   "repository": "natecavanaugh/file-filter",
-  "bin": "lib/cli.js",
+  "bin": "bin/index.js",
   "author": {
     "name": "Nate Cavanaugh",
     "email": "nate@shift22.com",
@@ -24,25 +24,28 @@
     ""
   ],
   "dependencies": {
-    "bluebird": "^3.4.1",
+    "bluebird": "^3.4.5",
     "get-stdin": "^5.0.1",
     "lodash": "^4.15.0",
-    "md5": "^2.1.0",
-    "meow": "^3.3.0"
+    "md5": "^2.2.0",
+    "meow": "^3.7.0",
+    "pluralize": "^3.0.0",
+    "string-sub": "0.0.1"
   },
   "devDependencies": {
-    "mocha": "*",
     "chai": "*",
     "chai-string": "*",
     "coveralls": "*",
-    "gulp-coveralls": "*",
-    "gulp-istanbul": "*",
-    "istanbul": "*",
-    "sinon": "*",
     "gulp": "*",
-    "gulp-load-plugins": "*",
+    "gulp-coveralls": "*",
     "gulp-help": "*",
+    "gulp-istanbul": "^1.1.1",
+    "gulp-load-plugins": "*",
+    "gulp-mocha": "*",
+    "istanbul": "*",
+    "mocha": "*",
+    "mock-stdin": "^0.3.0",
     "run-sequence": "*",
-    "gulp-mocha": "*"
+    "sinon": "*"
   }
 }

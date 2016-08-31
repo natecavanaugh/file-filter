@@ -28,6 +28,38 @@ var files = getFiles(_.times(2, function(n) {
 }));
 
 it(
+	'can be instantiated or called directly',
+	function() {
+		var filesArr = getFiles('unique_1.txt', 'dupe_1.txt');
+
+		var direct = fileFilter([]);
+		var instance = new fileFilter([]);
+
+		assert.isTrue('then' in direct, 'fileFilter() is not a promise/thenable');
+		assert.isTrue('then' in instance, 'new fileFilter() is not a promise/thenable');
+	}
+);
+
+it(
+	'should only accept arrays or newline separated strings',
+	function(done) {
+		var filesArr = getFiles('unique_1.txt', 'dupe_1.txt');
+
+		fileFilter().then(
+			function(results) {
+
+			}
+		).catch(
+			function(err) {
+				assert.equal(err.message, fileFilter._ERR_INVALID_ARGS);
+
+				done();
+			}
+		);
+	}
+);
+
+it(
 	'should show unique files',
 	function(done) {
 		fileFilter(files.join('\n')).then(
@@ -38,10 +70,9 @@ it(
 				assert.isFalse(uniqueFiles.some(function(n) {
 					return path.basename(n).indexOf('dupe_') === 0;
 				}));
-
-				done();
 			}
-		);
+		)
+		.done(done, done);
 	}
 );
 
@@ -56,10 +87,9 @@ it(
 				assert.isFalse(duplicateFiles.some(function(n) {
 					return path.basename(n).indexOf('unique_') === 0;
 				}));
-
-				done();
 			}
-		);
+		)
+		.done(done, done);
 	}
 );
 
@@ -88,36 +118,32 @@ it(
 				assert.isTrue(strict.uniques.every(function(n) {
 					return REGEX_FILE_CHECK.test(path.basename(n));
 				}));
-				done();
 			}
-		);
+		)
+		.done(done, done);
 	}
 );
 
-// it(
-// 	'should accept input from stdin',
-// 	function(done) {
-// 		assert.strictEqual(fileFilter('belgian'), 'BEST BEER EVAR!');
-// 	}
-// );
+it(
+	'should ignore invalid files and directories',
+	function(done) {
+		fileFilter(['invalid_file.js', __dirname]).then(
+			function(results) {
+				assert.equal(results[0].allFiles.length, 0);
+				assert.equal(results[0].uniques.length, 0);
+				assert.equal(results[0].duplicates.length, 0);
 
-// it(
-// 	'should accept arguments from parameters',
-// 	function(done) {
-// 		assert.strictEqual(fileFilter('belgian'), 'BEST BEER EVAR!');
-// 	}
-// );
+				var unprocessed = results[2];
+				var dirKeys = Object.keys(unprocessed.dirs);
+				var miscKeys = Object.keys(unprocessed.misc);
 
-// it(
-// 	'should show a summary after a file list',
-// 	function(done) {
-// 		assert.strictEqual(fileFilter('belgian'), 'BEST BEER EVAR!');
-// 	}
-// );
+				assert.equal(dirKeys.length, 1);
+				assert.equal(miscKeys.length, 1);
 
-// it(
-// 	'should show only a summary',
-// 	function(done) {
-// 		assert.strictEqual(fileFilter('belgian'), 'BEST BEER EVAR!');
-// 	}
-// );
+				assert.equal(dirKeys[0], __dirname);
+				assert.equal(miscKeys[0], 'invalid_file.js');
+			}
+		)
+		.done(done, done);
+	}
+);
